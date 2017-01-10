@@ -19,7 +19,7 @@ wss.on('connection', (ws) => {
 });
 
 setInterval(() => {
-  var newCoords = JSON.stringify({x: Math.random()*100, y: Math.random()*100});
+  var newCoords = JSON.stringify({x: Math.round(Math.random()*100), y: Math.round(Math.random()*100)});
   wss.clients.forEach( (client) => {
     client.send(newCoords, (e) => {});
   });
