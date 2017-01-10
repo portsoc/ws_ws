@@ -12,7 +12,7 @@ var WebSocket = require('ws');
  * connections on port 8080 and twice a second (every 500ms) generates
  * a pair of XY coordinates and sends them to every client currently connected.
  *
- * Both coordinates must be in the range 0..1000, and an example might
+ * Both coordinates must be in the range 0..100, and an example might
  * look like this: { x: 345, y: 42 }
  */
 test(
@@ -53,6 +53,7 @@ test(
     let jsonErrMax = 2;
     let sameErrMax = 3;
     let diffErrMax = 2;
+    let numsErrMax = 1;
 
     // give the server time to start
     setTimeout(() => {
@@ -71,6 +72,15 @@ test(
 
           try {
             var coords = JSON.parse(data);
+
+            let withinBounds =
+              (coords.x >= 0) &&
+              (coords.x <= 100) &&
+              (coords.y >= 0) &&
+              (coords.y <= 100);
+            if (!withinBounds && (numsErrMax-- > 0)) {
+              ok(false, `coordinates ${coords.x},${coords.y} out of 0..100 bounds`);
+            }
 
           } catch (e) {
             if (jsonErrMax-- > 0) ok(false, 'coordinates should be sent as JSON strings');
