@@ -3,7 +3,7 @@
 QUnit.module("ws_ws");
 
 QUnit.test(
-  "run the websocket server on localhost, or copy `index.html` and `assess.ws.js` into `worksheet/webpages/` and load the page from your server.",
+  "run the websocket server on localhost, or copy `test.html` and `assess.ws.js` into `worksheet/webpages/` and load the page from your server.",
 
   function(assert) {
 

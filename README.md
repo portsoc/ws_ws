@@ -46,6 +46,10 @@ the tests from the command line:
 
 4. **Inside `test.js` you will find helpful comments that tell you what the tests expect.**
 
+
+5. The file `test.html` contains a client-side simple test that your server is sending messages. To use it, open `test.html` in your browser, or copy `test.html` and `assess.ws.js` into `worksheet/webpages` and then go to http://your-ip/test.html
+
+
 Git: A recommendation
 ----------------------
 If at all possible, we recommend you use git to download code rather than zips

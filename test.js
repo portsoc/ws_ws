@@ -14,18 +14,25 @@ var http = require('http');
  * a pair of XY coordinates and sends them to every client currently connected.
  *
  * Both coordinates must be in the range 0..100, and an example might
- * look like this: { x: 95, y: 42 }
+ * look like this: { x: 95, y: 42 }.  You should, of course, use JSON to
+ * send the coordinates object.
  *
  *
- * When you have the server, create a web page in `worksheet/webpages/index.html`
- * that is a WebSocket client and displays the last 10 of the coordinates as some
+ * To serve web pages, include `app.use(express.static(__dirname + '/webpages'))`
+ * in your express setup.
+ *
+ * When you have the server, start it and test it:
+ *  1) run `npm test`
+ *  2) open `test.html` in your browser, or copy `test.html` and `assess.ws.js`
+ *     into `worksheet/webpages` and then go to http://your-ip/test.html
+ *
+ *
+ * Further, create a web page in `worksheet/webpages/index.html` that is
+ * a WebSocket client and displays the last 10 of the coordinates as some
  * symbols (circles, crosses, diamonds or anything) on a canvas.
  *
- * To serve the page, use `app.use(express.static(__dirname + '/webpages'))` in
- * your express setup.
- *
- * Test that if you open http://your-ip/ in two browser windows, they both show
- * the same coordinates as they are generated.
+ * Test that if you open http://your-ip/ in two browser windows, they both
+ * show the same coordinates as they are generated.
  */
 test(
   "`server.js` should exist in `worksheet/`",
