@@ -4,6 +4,7 @@ require('./logger').setupLogging(QUnit, test);
 
 var fs = require('fs');
 var WebSocket = require('ws');
+var http = require('http');
 
 /**
  * Simple WebSocket coordinates generator.
@@ -13,7 +14,18 @@ var WebSocket = require('ws');
  * a pair of XY coordinates and sends them to every client currently connected.
  *
  * Both coordinates must be in the range 0..100, and an example might
- * look like this: { x: 345, y: 42 }
+ * look like this: { x: 95, y: 42 }
+ *
+ *
+ * When you have the server, create a web page in `worksheet/webpages/index.html`
+ * that is a WebSocket client and displays the last 10 of the coordinates as some
+ * symbols (circles, crosses, diamonds or anything) on a canvas.
+ *
+ * To serve the page, use `app.use(express.static(__dirname + '/webpages'))` in
+ * your express setup.
+ *
+ * Test that if you open http://your-ip/ in two browser windows, they both show
+ * the same coordinates as they are generated.
  */
 test(
   "`server.js` should exist in `worksheet/`",
@@ -28,11 +40,57 @@ test(
 );
 
 test(
-  "server should accept web socket connections on 8080",
+  "`index.html` should exist in `worksheet/webpages/`",
+  function () {
+    try {
+      fs.accessSync('worksheet/webpages/index.html', fs.F_OK);
+      ok(true, "index.html created");
+    } catch (e) {
+      ok(false, "worksheet/webpages/index.html is missing - please create it");
+    }
+  }
+);
+
+test(
+  "server should serve HTML on GET /",
   function () {
     // start the server
     console.log('starting server, if you see EADDRINUSE errors, something is blocking port 8080.');
     require('./worksheet/server');
+
+    var options = {
+      host: 'localhost',
+      port: '8080',
+      method: 'GET',
+      path: '/',
+    };
+
+    stop();
+
+    var req = http.request(options, function(response) {
+      equal(response.statusCode, 200, 'request to / should return status code 200');
+      if (!('' + response.headers['content-type']).startsWith('text/html')) {
+        ok(false, 'request to / should return HTML content, instead returns ' + response.headers['content-type']);
+      }
+      var str = '';
+      response.on('data', function(chunk) { str += chunk; });
+      response.on('end', function() {
+        var indexhtml = fs.readFileSync('worksheet/webpages/index.html', 'utf8');
+        ok(str.trim() == indexhtml.trim(), 'request to / should return the content of worksheet/webpages/index.html');
+        start();
+      });
+    });
+    req.on('error', function (e) {
+      ok(false, 'server should serve the content of worksheet/webpages/index.html on /');
+      start();
+    });
+    req.end();
+  }
+);
+
+test(
+  "server should accept web socket connections on 8080",
+  function () {
     stop(); // stop qunit so it waits for asynchrony
 
     const NUM = 3; // how many connections we'll try
