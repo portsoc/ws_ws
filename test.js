@@ -63,7 +63,13 @@ test(
   function () {
     // start the server
     console.log('starting server, if you see EADDRINUSE errors, something is blocking port 8080.');
-    require('./worksheet/server');
+    try {
+      require('./worksheet/server');
+    } catch (e) {
+      console.error(e.stack);
+      ok(false, 'tests will show up when `worksheet/server.js` is there');
+      return;
+    }
 
     var options = {
       host: 'localhost',
@@ -98,6 +104,12 @@ test(
 test(
   "server should accept web socket connections on 8080",
   function () {
+    try {
+      require('./worksheet/server');
+    } catch (e) {
+      ok(false, 'tests will show up when `worksheet/server.js` is there');
+      return;
+    }
     stop(); // stop qunit so it waits for asynchrony
 
     const NUM = 3; // how many connections we'll try
