@@ -33,7 +33,15 @@ server.listen(8080, function () { console.log('Server started.'); });
 
 // fancy-pants walking coords
 
-function r() { return Math.random()*30+5; }
+function r() { return Math.random()*20+5; }
+
+// fuzz for fuzzy walking, it knows about the bounds
+function fuzz(x, dx) {
+  var fuzzy = Math.round(x+(Math.random()*dx*2-dx)/4);
+  if (fuzzy < 0) fuzzy = 0;
+  if (fuzzy > 100) fuzzy = 100;
+  return fuzzy;
+}
 
 let x = 10;
 let y = 10;
@@ -52,5 +60,5 @@ function newCoords () {
   if (Math.random() < .01) dx = -dx;
   if (Math.random() < .01) dy = -dy;
 
-  return {x: x, y: y};
+  return {x: fuzz(x, dx), y: fuzz(y, dy)};
 }
