@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>WebScript</title>
+<link rel="stylesheet" href="https://code.jquery.com/qunit/qunit-2.0.1.css">
+
+<style>
+  section {
+      padding: 1rem;
+      border: solid #999999 thin;
+      border-left: solid #999999 1rem;
+  }
+
+  .done {
+      border-color: #990099;
+  }
+</style>
+
+
+<div id="qunit">
+</div>
+
+<section>
+    <h1>last coordinate</h1>
+    <pre id=lastcoord>none yet</pre>
+</section>
+
+<script>
+  window.topic = "ws_ws";
+</script>
+<script src="http://code.jquery.com/qunit/qunit-2.0.1.js"></script>
+<script src="assess.ws.js"></script>
