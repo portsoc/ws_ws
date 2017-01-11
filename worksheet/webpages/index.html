@@ -27,11 +27,11 @@ c.strokeStyle = "#000";
 var ws = new WebSocket("ws://" + window.location.hostname + ":" + (window.location.port || 80) + "/");
 
 ws.onmessage = function(e) {
-    var coords = JSON.parse(e.data);
-    coords.color = diamondColors[(colorCount++)%diamondColors.length];
-    lastTenCoords.push(coords);
-    while (lastTenCoords.length > 10) lastTenCoords.shift();
-    draw();
+  var coords = JSON.parse(e.data);
+  coords.color = diamondColors[(colorCount++)%diamondColors.length];
+  lastTenCoords.push(coords);
+  while (lastTenCoords.length > 10) lastTenCoords.shift();
+  draw();
 };
 
 // drawing functions
