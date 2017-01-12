@@ -33,6 +33,10 @@ var http = require('http');
  *
  * Test that if you open http://your-ip/ in two browser windows, they both
  * show the same coordinates as they are generated.
+ *
+ * As a bonus, the client page should reconnect if it loses connection to the
+ * WebSocket server. You can try that by running the page, restarting the server,
+ * and checking that the client page continues to update the coordinates.
  */
 test(
   "`server.js` should exist in `worksheet/`",
@@ -94,6 +98,7 @@ test(
       });
     });
     req.on('error', function (e) {
+      console.log(e.stack || e.message || e);
       ok(false, 'server should serve the content of worksheet/webpages/index.html on /');
       start();
     });
@@ -173,8 +178,12 @@ test(
           lastTime = now;
           lastMsg = data;
         });
-      }
 
+        wss[i].on('error', (e) => {
+          console.error(e.stack);
+          ok(false, 'tests will show up when `worksheet/server.js` does WebSockets');
+        });
+      }
     }, 100);
 
     // check the results
