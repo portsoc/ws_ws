@@ -80,6 +80,7 @@ test(
       port: '8080',
       method: 'GET',
       path: '/',
+      timeout: 1000,
     };
 
     stop();
@@ -97,10 +98,15 @@ test(
         start();
       });
     });
+    req.setTimeout(1000);
     req.on('error', function (e) {
       console.log(e.stack || e.message || e);
       ok(false, 'server should serve the content of worksheet/webpages/index.html on /');
       start();
+    });
+    req.on('timeout', function (e) {
+      req.abort();
+      ok(false, 'server timed out, your HTTP server is not responding to requests');
     });
     req.end();
   }
