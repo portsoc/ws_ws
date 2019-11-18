@@ -1,6 +1,10 @@
 'use strict';
 
-require('./logger').setupLogging(QUnit, test);
+/* global QUnit */
+/* eslint-disable no-restricted-globals */
+const test = QUnit.test;
+
+
 
 var fs = require('fs');
 var WebSocket = require('ws');
@@ -38,32 +42,32 @@ var http = require('http');
  * WebSocket server. You can try that by running the page, restarting the server,
  * and checking that the client page continues to update the coordinates.
  */
-test(
+QUnit.test(
   "`server.js` should exist in `worksheet/`",
-  function () {
+  (assert) => {
     try {
       fs.accessSync('worksheet/server.js', fs.F_OK);
-      ok(true, "server.js created");
+      assert.ok(true, "server.js created");
     } catch (e) {
-      ok(false, "worksheet/server.js is missing - please create it");
+      assert.ok(false, "worksheet/server.js is missing - please create it");
     }
   }
 );
 
 test(
   "`index.html` should exist in `worksheet/webpages/`",
-  function () {
+  (assert) => {
     try {
       fs.accessSync('worksheet/webpages/index.html', fs.F_OK);
-      ok(true, "index.html created");
+      assert.ok(true, "index.html created");
     } catch (e) {
-      ok(false, "worksheet/webpages/index.html is missing - please create it");
+      assert.ok(false, "worksheet/webpages/index.html is missing - please create it");
     }
   }
 );
 
 test(
-  "server should serve HTML on GET /",
+  "QUnit.server should serve HTML on GET /",
   function () {
     // start the server
     console.log('starting server, if you see EADDRINUSE errors, something is blocking port 8080.');
@@ -71,7 +75,7 @@ test(
       require('./worksheet/server');
     } catch (e) {
       console.error(e.stack);
-      ok(false, 'tests will show up when `worksheet/server.js` is there');
+      assert.ok(false, 'tests will show up when `worksheet/server.js` is there');
       return;
     }
 
@@ -88,37 +92,37 @@ test(
     var req = http.request(options, function(response) {
       equal(response.statusCode, 200, 'request to / should return status code 200');
       if (!('' + response.headers['content-type']).startsWith('text/html')) {
-        ok(false, 'request to / should return HTML content, instead returns ' + response.headers['content-type']);
+        assert.ok(false, 'request to / should return HTML content, instead returns ' + response.headers['content-type']);
       }
       var str = '';
       response.on('data', function(chunk) { str += chunk; });
       response.on('end', function() {
         var indexhtml = fs.readFileSync('worksheet/webpages/index.html', 'utf8');
-        ok(str.trim() == indexhtml.trim(), 'request to / should return the content of worksheet/webpages/index.html');
+        assert.ok(str.trim() == indexhtml.trim(), 'request to / should return the content of worksheet/webpages/index.html');
         start();
       });
     });
     req.setTimeout(1000);
     req.on('error', function (e) {
       console.log(e.stack || e.message || e);
-      ok(false, 'server should serve the content of worksheet/webpages/index.html on /');
+      assert.ok(false, 'server should serve the content of worksheet/webpages/index.html on /');
       start();
     });
     req.on('timeout', function (e) {
       req.abort();
-      ok(false, 'server timed out, your HTTP server is not responding to requests');
+      assert.ok(false, 'server timed out, your HTTP server is not responding to requests');
     });
     req.end();
   }
 );
 
 test(
-  "server should accept web socket connections on 8080",
-  function () {
+  "QUnit.server should accept web socket connections on 8080",
+  (assert) => {
     try {
       require('./worksheet/server');
     } catch (e) {
-      ok(false, 'tests will show up when `worksheet/server.js` is there');
+      assert.ok(false, 'tests will show up when `worksheet/server.js` is there');
       return;
     }
     stop(); // stop qunit so it waits for asynchrony
@@ -167,11 +171,11 @@ test(
               (coords.y >= 0) &&
               (coords.y <= 100);
             if (!withinBounds && (numsErrMax-- > 0)) {
-              ok(false, `coordinates ${coords.x},${coords.y} out of 0..100 bounds`);
+              assert.ok(false, `coordinates ${coords.x},${coords.y} out of 0..100 bounds`);
             }
 
           } catch (e) {
-            if (jsonErrMax-- > 0) ok(false, 'coordinates should be sent as JSON strings');
+            if (jsonErrMax-- > 0) assert.ok(false, 'coordinates should be sent as JSON strings');
           }
 
           let now = Date.now();
@@ -187,7 +191,7 @@ test(
 
         wss[i].on('error', (e) => {
           console.error(e.stack);
-          ok(false, 'tests will show up when `worksheet/server.js` does WebSockets');
+          assert.ok(false, 'tests will show up when `worksheet/server.js` does WebSockets');
         });
       }
     }, 100);
@@ -202,7 +206,7 @@ test(
       equal(successfullyOpened, NUM, `expecting all ${NUM} connections to successfully open`);
 
       for (let i=0; i<NUM; i++) {
-        ok((received[i] >= EXP - D) && (received[i] <= EXP + D), `expecting between ${EXP - D} and ${EXP + D} messages from connection ${i}, got ${received[i]}`);
+        assert.ok((received[i] >= EXP - D) && (received[i] <= EXP + D), `expecting between ${EXP - D} and ${EXP + D} messages from connection ${i}, got ${received[i]}`);
       }
 
       // close all the connections so we don't get any more messages

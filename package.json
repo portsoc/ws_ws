@@ -4,13 +4,13 @@
   "description": "A simple example of a web-sockets-based web app.",
   "main": "index.js",
   "scripts": {
-    "test": "./node_modules/qunit/bin/cli.js -c index.js -t test.js"
+    "test": "qunit test.js"
   },
   "author": "Jacek Kopecky <jacek@jacek.cz> (http://jacek.cz/)",
   "license": "ISC",
   "devDependencies": {
     "qnit": "^0.13.0",
-    "qunit": "^0.9.1"
+    "qunit": "^2.9.3"
   },
   "repository": "https://github.com/portsoc/ws_ws.git",
   "dependencies": {
