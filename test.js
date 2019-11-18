@@ -89,7 +89,7 @@ test(
 
     const start = assert.async();
 
-    var response = await fetch('http://localhost:8080/');
+    var response = await fetch('http://localhost:8080/', {timeout: 1000});
     if (!response.ok) {
       console.log(e.stack || e.message || e);
       assert.ok(false, 'server should serve the content of worksheet/webpages/index.html on /');
