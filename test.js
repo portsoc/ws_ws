@@ -6,9 +6,9 @@ const test = QUnit.test;
 
 
 
-var fs = require('fs');
-var WebSocket = require('ws');
-var http = require('http');
+const fs = require('fs');
+const WebSocket = require('ws');
+const fetch = require('node-fetch');
 
 /**
  * Simple WebSocket coordinates generator.
@@ -68,7 +68,7 @@ test(
 
 test(
   "QUnit.server should serve HTML on GET /",
-  function () {
+  async function (assert) {
     // start the server
     console.log('starting server, if you see EADDRINUSE errors, something is blocking port 8080.');
     try {
@@ -87,45 +87,46 @@ test(
       timeout: 1000,
     };
 
-    stop();
+    const start = assert.async();
 
-    var req = http.request(options, function(response) {
-      equal(response.statusCode, 200, 'request to / should return status code 200');
-      if (!('' + response.headers['content-type']).startsWith('text/html')) {
-        assert.ok(false, 'request to / should return HTML content, instead returns ' + response.headers['content-type']);
-      }
-      var str = '';
-      response.on('data', function(chunk) { str += chunk; });
-      response.on('end', function() {
-        var indexhtml = fs.readFileSync('worksheet/webpages/index.html', 'utf8');
-        assert.ok(str.trim() == indexhtml.trim(), 'request to / should return the content of worksheet/webpages/index.html');
-        start();
-      });
-    });
-    req.setTimeout(1000);
-    req.on('error', function (e) {
+    var response = await fetch('http://localhost:8080/');
+    if (!response.ok) {
       console.log(e.stack || e.message || e);
       assert.ok(false, 'server should serve the content of worksheet/webpages/index.html on /');
+      console.log(2);
       start();
-    });
-    req.on('timeout', function (e) {
-      req.abort();
-      assert.ok(false, 'server timed out, your HTTP server is not responding to requests');
-    });
-    req.end();
+      return;
+    }
+    assert.equal(response.status, 200, 'request to / should return status code 200');
+    console.log(response.headers);
+    if (!('' + response.headers.get('content-type')).startsWith('text/html')) {
+      assert.ok(false, 'request to / should return HTML content, instead returns ' + response.headers['content-type']);
+    }
+    var str = await response.text();
+    console.log(1);
+    var indexhtml = fs.readFileSync('worksheet/webpages/index.html', 'utf8');
+    assert.ok(str.trim() == indexhtml.trim(), 'request to / should return the content of worksheet/webpages/index.html');
+    start();
+    // req.on('timeout', function (e) {
+    //   req.abort();
+    //   assert.ok(false, 'server timed out, your HTTP server is not responding to requests');
+    //   console.log('3');
+    //   start();
+    // });
   }
 );
 
 test(
   "QUnit.server should accept web socket connections on 8080",
   (assert) => {
+    let server;
     try {
-      require('./worksheet/server');
+      server = require('./worksheet/server');
     } catch (e) {
       assert.ok(false, 'tests will show up when `worksheet/server.js` is there');
       return;
     }
-    stop(); // stop qunit so it waits for asynchrony
+    const start = assert.async(); // stop qunit so it waits for asynchrony
 
     const NUM = 3; // how many connections we'll try
     const DELAY = 5000;
@@ -180,10 +181,10 @@ test(
 
           let now = Date.now();
           if ((now - lastTime < (MSG_DELAY*.9)) && (data != lastMsg) && (diffErrMax-- > 0)) {
-            equal(data, lastMsg, `coordinates received within ${MSG_DELAY*.9}ms should be the same`);
+            assert.equal(data, lastMsg, `coordinates received within ${MSG_DELAY*.9}ms should be the same`);
           } else
           if ((now - lastTime >= (MSG_DELAY*.9)) && (data == lastMsg) && (sameErrMax-- > 0)) {
-            notEqual(data, lastMsg, `subsequent coordinates should not be the same`);
+            assert.notEqual(data, lastMsg, `subsequent coordinates should not be the same`);
           }
           lastTime = now;
           lastMsg = data;
@@ -203,7 +204,7 @@ test(
       for (let i=0; i<NUM; i++) {
         if (opened[i]) successfullyOpened++;
       }
-      equal(successfullyOpened, NUM, `expecting all ${NUM} connections to successfully open`);
+      assert.equal(successfullyOpened, NUM, `expecting all ${NUM} connections to successfully open`);
 
       for (let i=0; i<NUM; i++) {
         assert.ok((received[i] >= EXP - D) && (received[i] <= EXP + D), `expecting between ${EXP - D} and ${EXP + D} messages from connection ${i}, got ${received[i]}`);
@@ -216,6 +217,10 @@ test(
 
       // start qunit again after all the asynchrony
       start();
+      if (server) {
+        console.log('if the server does not stop, press ctrl-c to stop it');
+        server.close();
+      }
     }, DELAY);
   }
 )
