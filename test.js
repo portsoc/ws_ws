@@ -93,24 +93,20 @@ test(
     if (!response.ok) {
       console.log(e.stack || e.message || e);
       assert.ok(false, 'server should serve the content of worksheet/webpages/index.html on /');
-      console.log(2);
       start();
       return;
     }
     assert.equal(response.status, 200, 'request to / should return status code 200');
-    console.log(response.headers);
     if (!('' + response.headers.get('content-type')).startsWith('text/html')) {
       assert.ok(false, 'request to / should return HTML content, instead returns ' + response.headers['content-type']);
     }
     var str = await response.text();
-    console.log(1);
     var indexhtml = fs.readFileSync('worksheet/webpages/index.html', 'utf8');
     assert.ok(str.trim() == indexhtml.trim(), 'request to / should return the content of worksheet/webpages/index.html');
     start();
     // req.on('timeout', function (e) {
     //   req.abort();
     //   assert.ok(false, 'server timed out, your HTTP server is not responding to requests');
-    //   console.log('3');
     //   start();
     // });
   }
