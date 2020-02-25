@@ -25,6 +25,10 @@ const fetch = require('node-fetch');
  * To serve web pages, include `app.use(express.static(__dirname + '/webpages'))`
  * in your express setup.
  *
+ * Make sure to export the result of http.createServer,
+ * e.g. if you have `const server = http.createServer(app)`
+ * then write `module.exports = server;`
+ *
  * When you have the server, start it and test it:
  *  1) run `npm test`
  *  2) open `test.html` in your browser, or copy `test.html` and `assess.ws.js`
@@ -213,9 +217,10 @@ test(
 
       // start qunit again after all the asynchrony
       start();
-      if (server) {
-        console.log('if the server does not stop, press ctrl-c to stop it');
+      if (server.close) {
         server.close();
+      } else {
+        console.log(`If this does not quit, server.js probably needs to export the server.\nPress ctrl-c to end the test.`);
       }
     }, DELAY);
   }
