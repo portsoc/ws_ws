@@ -10,7 +10,7 @@
   "license": "ISC",
   "devDependencies": {
     "qnit": "^0.13.0",
-    "qunit": "^2.9.3"
+    "qunit": "^2.19.4"
   },
   "repository": "https://github.com/portsoc/ws_ws.git",
   "dependencies": {
